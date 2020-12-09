@@ -1,6 +1,6 @@
 import { Deck } from "./Deck";
 import { Game } from "./Game";
-import { Player } from "./types";
+import { Player, PlayerStatus } from "./types";
 
 const state: {games: any} = {
   games: {}
@@ -25,13 +25,13 @@ export const stayRequest = (gameId: number, playerName: string) => {
 }
 
 
-export const startGame = (players: Array<string>) => {
+export const startGame = (players: Array<string>): any => {
   let deck = new Deck()
   deck.shuffle()
 
   let playerData: Array<Player> = []
   players.forEach(player => {
-    let temp: Player = {name: player, cards: []};
+    let temp: Player = {name: player, cards: [], status: PlayerStatus.WAITING};
     playerData.push(temp);
   })
 

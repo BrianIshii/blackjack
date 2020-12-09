@@ -2,13 +2,16 @@ import { parseSuit, parseRank} from '../utils/cardParser';
 import { startGame, hitRequest, stayRequest } from '../server/Casino';
 import { CardAPI, Game, Player } from '../types/types';
 let subs: any = {}
-let subsToCurrentPlayer: Array<any> = []
+let subsToPlayer: any = {}
 
 let gameId = -1
-const update = (playerName: string, cards: Array<CardAPI>) => {
+const update = (player: Player) => {
   console.log('update')
-  subs[playerName] && subs[playerName].forEach((sub: any) => {
-    sub.cb(cards.concat([]))
+  subs[player.name] && subs[player.name].forEach((sub: any) => {
+    sub.cb(player.cards.concat([]))
+  });
+  subsToPlayer[player.name] && subsToPlayer[player.name].forEach((sub: any) => {
+    sub.cb(player)
   });
 }
 
@@ -43,9 +46,9 @@ const updateAll = (game: Game) => {
   gameId = game.id;
   console.log({gameId})
   game.players.forEach(player => {
-    update(player.name, player.cards)
+    update(player)
   })
-  update('Dealer', game.dealer)
+  update(game.dealer)
 }
 
 export const start = (players: Array<string>) => {
@@ -67,18 +70,23 @@ const unsub = (playerName: string, cb: any) => {
   console.log(subs[playerName])
 };
 
-const subscribeToCurrentPlayer = (cb: any) => {
-  subsToCurrentPlayer.push(cb);
+const subscribeToPlayer = (playerName: string, cb: any) => {
+  if (subsToPlayer[playerName]) {
+    subsToPlayer[playerName].push({playerName: playerName, cb})
+  } else {
+    subsToPlayer[playerName] = [{playerName: playerName, cb}]
+  }
 }
 
-const unsubscribeToCurrentPlayer = (cb: any) => {
-  subsToCurrentPlayer.filter(item => item !== cb)
+const unsubscribeToPlayer = (playerName: string, cb: any) => {
+  subsToPlayer[playerName] = subsToPlayer[playerName].filter((item: any) => item.cb !== cb)
 }
+
 const CasinoAPI = {
   subscribe: sub,
   unsubscribe: unsub,
-  subscribeToCurrentPlayer: subscribeToCurrentPlayer,
-  unsubscribeToCurrentPlayer: unsubscribeToCurrentPlayer
+  subscribeToPlayer: subscribeToPlayer,
+  unsubscribeToPlayer: unsubscribeToPlayer
 };
 
 export default CasinoAPI;

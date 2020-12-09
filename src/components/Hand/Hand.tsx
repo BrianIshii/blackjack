@@ -1,6 +1,7 @@
-import { Card } from '../../types/types';
+import { PlayerStatus } from '../../types/types';
 import CardView from '../Card';
 import useCards from '../useCards';
+import usePlayer from '../usePlayer';
 import './Hand.css';
 
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
 
 const Hand = (props: Props) => {
   const cards = useCards(props.name);
-  console.log(cards);
+  const player = usePlayer(props.name);
+  console.log(player)
 
   return (
     <div>
@@ -20,6 +22,9 @@ const Hand = (props: Props) => {
         { cards.map((card, index) => (
           <CardView key={index} card={card} />
         ))}
+      </div>
+      <div>
+        { PlayerStatus[player.status] }
       </div>
     </div>
   );

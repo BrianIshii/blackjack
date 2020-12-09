@@ -3,7 +3,23 @@ export interface Card {
   readonly rank: number
 }
 
+export enum PlayerStatus {
+  WAITING,
+  PLAYING,
+  WON,
+  LOST,
+  PUSH,
+  // only used on server below
+  DEALER,
+}
+
+export interface Dealer {
+  readonly name: string,
+  cards: Array<Card>,
+}
+
 export interface Player {
   readonly name: string,
-  cards: Array<Card>
+  cards: Array<Card>,
+  status: PlayerStatus
 }

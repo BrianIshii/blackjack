@@ -1,6 +1,6 @@
 import { getCardValue, isAce } from './Card';
 import { Deck } from './Deck';
-import { Card, Player } from './types';
+import { Card, Player, PlayerStatus } from './types';
 
 let gameNumber = 0
 const getNewGameId = () => gameNumber++
@@ -29,7 +29,7 @@ export class Game {
     this.id = getNewGameId()
     this.deck = deck
     this.players = players
-    this.dealer = {name: 'Dealer', cards: []}
+    this.dealer = {name: 'Dealer', cards: [], status: PlayerStatus.DEALER}
     this.currentPlayer = 0  
   }
 
@@ -42,6 +42,8 @@ export class Game {
         player.cards.push(card);
       })
     })
+
+    // conditions for early blackjack
   }
 
   hit(playerName: string) {
@@ -65,14 +67,30 @@ export class Game {
 
   dealerTurn() {
     console.log('dealers turn')
-    let currentCount = getCount(this.dealer.cards)
-    while (currentCount <= 16) {
-      if (currentCount > 17) {
+    let dealerCount = getCount(this.dealer.cards)
+    while (dealerCount <= 16) {
+      if (dealerCount > 17) {
         break;
       }
       this.dealer.cards.push(this.deck.dealCard());
-      currentCount = getCount(this.dealer.cards)
+      dealerCount = getCount(this.dealer.cards)
     }
+
+    this.players.forEach(player => {
+      let playerCount = getCount(player.cards);
+      if (playerCount > 21) {
+        player.status = PlayerStatus.LOST
+      } else if (dealerCount > 21) {
+        console.log('dealer bust: WIN')
+        player.status = PlayerStatus.WON
+      } else if (playerCount > dealerCount) {
+        player.status = PlayerStatus.WON
+      } else if (playerCount === dealerCount) {
+        player.status = PlayerStatus.PUSH
+      } else {
+        player.status = PlayerStatus.LOST
+      }
+    });
   }
 
   isDone() {
@@ -80,9 +98,14 @@ export class Game {
   }
 
   data() {
-    const playerCards = this.players;
-    const dealerCards = this.isDone() ? this.dealer.cards : this.dealer.cards.slice(0, 1)
-    console.log({data: { id: this.id, dealer: dealerCards, players: playerCards}})
-    return { id: this.id, dealer: dealerCards, players: playerCards}
+    const players = this.players.map(player => {
+      return { ...player, count: getCount(player.cards)}
+    });
+    const dealer = this.isDone() ?
+      { ...this.dealer, count: getCount(this.dealer.cards)} :
+    {name: this.dealer.name, cards: this.dealer.cards.slice(0, 1), count: getCount(this.dealer.cards)}
+    console.log({dealer})
+    console.log({data: { id: this.id, dealer: dealer, players: players}})
+    return { id: this.id, dealer: dealer, players: players}
   }
 }
