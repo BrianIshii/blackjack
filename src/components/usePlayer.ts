@@ -5,7 +5,7 @@ import { Card, CardAPI, Player, PlayerStatus } from "../types/types";
 
 
 const usePlayer = (playerName: string) => {
-  const [player, setPlayer] = useState<Player>({name: '', cards: [], status: PlayerStatus.WAITING, count: 0});
+  const [player, setPlayer] = useState<Player>({name: '', bet: 0, total: 100, cards: [], status: PlayerStatus.WAITING, count: 0});
 
   useEffect(() => {
     const handleCardChange = (p: Player) => {

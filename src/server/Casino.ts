@@ -1,3 +1,4 @@
+import { table } from "console";
 import { Deck } from "./Deck";
 import { Game } from "./Game";
 import { Player, PlayerStatus } from "./types";
@@ -24,22 +25,31 @@ export const stayRequest = (gameId: number, playerName: string) => {
   return {}
 }
 
-
-export const startGame = (players: Array<string>): any => {
+export const createTableRequest = (player: Player): any => {
   let deck = new Deck()
   deck.shuffle()
 
-  let playerData: Array<Player> = []
-  players.forEach(player => {
-    let temp: Player = {name: player, cards: [], status: PlayerStatus.WAITING};
-    playerData.push(temp);
-  })
-
-  let game = new Game(deck, playerData);
-  game.dealCards()
+  let game = new Game(deck, [player]);
 
   state.games[game.id] = game
   return game.data()
 }
 
+export const playHandRequest = (tableId: number): any => {
+  const game = state.games[tableId];
+  game.dealCards();
 
+  return game.data();
+}
+
+export const resetTable = (tableId: number): any => {
+  let game = state.games[tableId]
+  game.reset()
+  return game.data();
+}
+
+export const betRequest = (tableId: number, playerName: string, bet: number): any => {
+  let game = state.games[tableId]
+  game.bet(playerName, bet)
+  return game.data();
+}

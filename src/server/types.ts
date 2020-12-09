@@ -20,6 +20,14 @@ export interface Dealer {
 
 export interface Player {
   readonly name: string,
+  bet: number,
+  total: number,
   cards: Array<Card>,
-  status: PlayerStatus
+  status: PlayerStatus,
+}
+
+export interface Account {
+  readonly id: number
+  readonly name: string;
+
 }

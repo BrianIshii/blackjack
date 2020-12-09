@@ -1,5 +1,5 @@
 import { parseSuit, parseRank} from '../utils/cardParser';
-import { startGame, hitRequest, stayRequest } from '../server/Casino';
+import { createTableRequest, resetTable, playHandRequest, hitRequest, stayRequest, betRequest } from '../server/Casino';
 import { CardAPI, Game, Player } from '../types/types';
 let subs: any = {}
 let subsToPlayer: any = {}
@@ -29,19 +29,6 @@ const update = (player: Player) => {
 //   }
 // }
 
-export const hit = (playerName: string) => {
-  let game = hitRequest(gameId, playerName)
-  updateAll(game);
-}
-
-export const stay = (playerName: string) => {
-  let game = stayRequest(gameId, playerName)
-  updateAll(game);
-//   console.log('app stay')
-
-//   console.log(state['Dealer'].cards)
-//   checkGameStatus(state)
-}
 const updateAll = (game: Game) => {
   gameId = game.id;
   console.log({gameId})
@@ -51,8 +38,36 @@ const updateAll = (game: Game) => {
   update(game.dealer)
 }
 
-export const start = (players: Array<string>) => {
-  let game = startGame(players)
+export const hit = (playerName: string) => {
+  let game = hitRequest(gameId, playerName)
+  updateAll(game);
+}
+
+export const stay = (playerName: string) => {
+  let game = stayRequest(gameId, playerName)
+  updateAll(game);
+}
+
+export const createTable = (player: Player) => {
+  let game = createTableRequest(player)
+  updateAll(game);
+}
+export const playHand = () => {
+  let game = playHandRequest(gameId)
+  updateAll(game);
+}
+
+export const addPlayer = () => {
+
+}
+
+export const bet = (playerName: string, bet: number) => {
+  let game = betRequest(gameId, playerName, bet)
+  updateAll(game);
+}
+
+export const reset = () => {
+  let game = resetTable(gameId);
   updateAll(game);
 }
 

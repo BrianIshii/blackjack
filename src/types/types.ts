@@ -18,6 +18,8 @@ export enum PlayerStatus {
 
 export interface Player {
   readonly name: string,
+  readonly bet: number,
+  readonly total: number,
   readonly cards: Array<CardAPI>,
   readonly status: PlayerStatus
   readonly count: number

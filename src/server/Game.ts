@@ -29,7 +29,7 @@ export class Game {
     this.id = getNewGameId()
     this.deck = deck
     this.players = players
-    this.dealer = {name: 'Dealer', cards: [], status: PlayerStatus.DEALER}
+    this.dealer = {name: 'Dealer', bet: 0, total: 0, cards: [], status: PlayerStatus.DEALER}
     this.currentPlayer = 0  
   }
 
@@ -44,19 +44,40 @@ export class Game {
     })
 
     // conditions for early blackjack
+    this.players[0].status = PlayerStatus.PLAYING
+  }
+
+  bet(playerName: string, bet: number) {
+    for (let i = 0; i < this.players.length; i++) {
+      const player = this.players[i];
+      if (player.name === playerName && player.status === PlayerStatus.WAITING) {
+        const diffBet = bet - player.bet;
+        const newTotal = player.total - diffBet
+        this.players[i] = { ...player, bet: bet, total: newTotal}
+      }
+    }
   }
 
   hit(playerName: string) {
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].name === playerName && i === this.currentPlayer) {
         this.players[i].cards.push(this.deck.dealCard());
+        if (getCount(this.players[i].cards) > 21) {
+          this.players[i].status = PlayerStatus.LOST
+          this.nextPlayer(playerName)
+        }
       }
     }
   }
 
   stay(playerName: string) {
+    this.nextPlayer(playerName)
+  }
+
+  nextPlayer(playerName: string) {
     for (let i = 0; i < this.players.length; i++) {
       if (this.players[i].name === playerName && i === this.currentPlayer) {
+        this.players[i].status = PlayerStatus.WAITING;
         this.currentPlayer++;
         if (this.isDone()) {
           this.dealerTurn()
@@ -81,20 +102,34 @@ export class Game {
       if (playerCount > 21) {
         player.status = PlayerStatus.LOST
       } else if (dealerCount > 21) {
-        console.log('dealer bust: WIN')
         player.status = PlayerStatus.WON
+        player.total += player.bet * 2
       } else if (playerCount > dealerCount) {
         player.status = PlayerStatus.WON
+        player.total += player.bet * 2
       } else if (playerCount === dealerCount) {
         player.status = PlayerStatus.PUSH
+        player.total += player.bet
       } else {
         player.status = PlayerStatus.LOST
       }
+      player.bet = 0
     });
   }
 
   isDone() {
     return this.currentPlayer >= this.players.length
+  }
+
+  reset() {
+    this.currentPlayer = 0
+    this.dealer.cards = []
+
+    this.players.forEach(player => {
+      player.status = PlayerStatus.WAITING
+      player.cards = []
+    })
+
   }
 
   data() {
