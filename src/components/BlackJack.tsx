@@ -18,7 +18,7 @@ const BlackJack = (props: Props) => {
   const playerName = 'Player'
   const cards = useCards(playerName)
   const player = usePlayer(playerName)
-  const isGameOver = player.status === PlayerStatus.LOST || player.status === PlayerStatus.WON || player.status === PlayerStatus.WAITING
+  const isGameOver = player.status === PlayerStatus.LOST || player.status === PlayerStatus.WON || player.status === PlayerStatus.WAITING || player.status === PlayerStatus.PUSH
   
   useEffect(() => {
     props.createTable({ ...player, name: playerName})
@@ -32,7 +32,7 @@ const BlackJack = (props: Props) => {
       ?
       <div>
         <button disabled={isGameOver} onClick={ () => props.hit(playerName) }>Hit</button>
-        <button  onClick={ () => props.stay(playerName) }>Stay</button>
+        <button disabled={isGameOver} onClick={ () => props.stay(playerName) }>Stay</button>
         <button onClick={ () => props.reset() }>Restart</button>
       </div>
       :

@@ -44,7 +44,36 @@ export class Game {
     })
 
     // conditions for early blackjack
-    this.players[0].status = PlayerStatus.PLAYING
+    // this.dealer.cards = [{suit: 1, rank: 14}, {suit: 1, rank: 10}]
+    this.players[0].cards = [{suit: 1, rank: 14}, {suit: 1, rank: 10}]
+    const dealerCount = getCount(this.dealer.cards);
+    
+    this.players.forEach(player => {
+      const playerCount = getCount(player.cards)
+      if (playerCount === 21) {
+        if (dealerCount === 21) {
+          player.status = PlayerStatus.PUSH
+          player.total += player.bet
+          player.bet = 0
+        } else {
+          player.status = PlayerStatus.WON
+          player.total += player.bet * 2
+        }
+      } else if (dealerCount === 21) {
+        player.status = PlayerStatus.LOST
+        player.bet = 0
+      }
+    });
+    
+    for(let i = 0; i < this.players.length; i++) {
+      const status = this.players[i].status;
+      if (status < 2) {
+        this.players[i].status = PlayerStatus.PLAYING;
+        this.currentPlayer = i;
+        return;
+      }
+    }
+    this.currentPlayer = this.players.length;
   }
 
   bet(playerName: string, bet: number) {
